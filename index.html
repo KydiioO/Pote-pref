@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Pote préféré</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: #f5f0e6;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    color: #5a3e2b;
+}
+
+.container {
+    background: #e8dcc9;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    position: relative;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+button {
+    padding: 12px 25px;
+    border-radius: 30px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#yesBtn {
+    background: #8b5e3c;
+    color: white;
+}
+
+#noBtn {
+    background: #c9a77d;
+    color: #5a3e2b;
+    position: fixed;
+}
+
+.loading {
+    width: 0;
+    height: 8px;
+    background: #8b5e3c;
+    margin: 20px auto;
+    border-radius: 5px;
+    display: none;
+}
+
+.arrow {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+    display: none;
+}
+
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    animation: fall 3s linear forwards;
+}
+
+@keyframes fall {
+    from {
+        transform: translateY(-10px) rotate(0deg);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="box">
+    <h1 id="title">je suis ton pote préféré hein ?</h1>
+    <div class="arrow" id="arrow">⬇️</div>
+
+    <div class="buttons" id="buttons">
+        <button id="yesBtn">Oui</button>
+        <button id="noBtn">Non</button>
+    </div>
+
+    <div class="loading" id="loading"></div>
+</div>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const title = document.getElementById("title");
+const loading = document.getElementById("loading");
+const arrow = document.getElementById("arrow");
+const buttons = document.getElementById("buttons");
+const box = document.getElementById("box");
+
+let noCount = 0;
+
+const noTexts = [
+    "t’es sûr 🥺 ?",
+    "nan tu t’es trompé hein ?",
+    "réfléchis encore 😐",
+    "le bouton oui est juste là",
+    "ok là tu forces",
+];
+
+// Position initiale du bouton Non
+placeNoRandomly();
+
+document.addEventListener("mousemove", (e) => {
+    const rect = noBtn.getBoundingClientRect();
+    const distance = Math.hypot(
+        e.clientX - (rect.left + rect.width / 2),
+        e.clientY - (rect.top + rect.height / 2)
+    );
+
+    if (distance < 120) {
+        fleeNo();
+    }
+});
+
+noBtn.addEventListener("click", fleeNo);
+
+function fleeNo() {
+    noCount++;
+
+    placeNoRandomly();
+
+    if (noCount <= noTexts.length) {
+        noBtn.textContent = noTexts[noCount - 1];
+    }
+
+    if (noCount === 4) {
+        arrow.style.display = "block";
+    }
+
+    if (noCount >= 6) {
+        noBtn.remove();
+        arrow.style.display = "none";
+
+        const p = document.createElement("p");
+        p.textContent = "voilà t’as plus le choix enfaite !";
+        p.style.marginTop = "15px";
+        box.appendChild(p);
+    }
+}
+
+function placeNoRandomly() {
+    const maxX = window.innerWidth - noBtn.offsetWidth;
+    const maxY = window.innerHeight - noBtn.offsetHeight;
+
+    noBtn.style.left = Math.random() * maxX + "px";
+    noBtn.style.top = Math.random() * maxY + "px";
+}
+
+yesBtn.addEventListener("click", () => {
+    buttons.style.display = "none";
+    loading.style.display = "block";
+    loading.style.width = "0";
+
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress++;
+        loading.style.width = progress + "%";
+        if (progress >= 100) {
+            clearInterval(interval);
+            loading.style.display = "none";
+            title.textContent = "OUAIS ! Je le savais 🥳🥳";
+            launchConfetti();
+        }
+    }, 30);
+});
+
+function launchConfetti() {
+    for (let i = 0; i < 90; i++) {
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = Math.random() * window.innerWidth + "px";
+        confetti.style.background = `hsl(${Math.random()*360},80%,60%)`;
+        confetti.style.animationDuration = 2 + Math.random() * 2 + "s";
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 4000);
+    }
+}
+</script>
+
+</body>
+</html>
